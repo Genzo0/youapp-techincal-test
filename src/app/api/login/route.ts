@@ -23,7 +23,6 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ message: "Login successful" });
   res.cookies.set("authToken", access_token, {
-    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
