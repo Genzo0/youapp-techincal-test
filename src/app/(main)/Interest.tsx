@@ -4,37 +4,11 @@ import { PencilLine } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function Interest() {
-  const [interests, setInterests] = useState([
-    {
-      id: "1038286576",
-      text: "Music",
-    },
-    {
-      id: "2145338036",
-      text: "Basketball",
-    },
-    {
-      id: "2903212970",
-      text: "Fitness",
-    },
-    {
-      id: "2903212972",
-      text: "Gymming",
-    },
-    {
-      id: "290321220",
-      text: "Fitness",
-    },
-    {
-      id: "103821286576",
-      text: "Music",
-    },
-    {
-      id: "103828612576",
-      text: "Music",
-    },
-  ]);
+interface InterestProps {
+  userInfo: any;
+}
+
+export default function Interest({ userInfo }: InterestProps) {
   return (
     <div className="relative min-h-32 rounded-2xl bg-[#0E191F] px-7 py-4">
       <Link href="/add-interest">
@@ -42,14 +16,14 @@ export default function Interest() {
       </Link>
       <div className="space-y-7">
         <p className="text-sm font-bold">Interest</p>
-        {interests.length > 0 ? (
+        {userInfo.interests.length > 0 ? (
           <div className="flex flex-wrap items-start justify-start gap-3">
-            {interests.map((interest) => (
+            {userInfo.interests.map((interest: any, idx: any) => (
               <div
-                key={interest.id}
+                key={idx}
                 className="rounded-2xl bg-white/5 px-4 py-2 text-sm font-semibold"
               >
-                {interest.text}
+                {interest}
               </div>
             ))}
           </div>

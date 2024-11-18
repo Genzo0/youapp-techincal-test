@@ -1,54 +1,100 @@
 import Back from "@/components/Back";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { Ellipsis, PencilLine, Rss } from "lucide-react";
+import { Ellipsis, LogOut, PencilLine, Rss } from "lucide-react";
 import Image from "next/image";
 import About from "./About";
 import Link from "next/link";
 import Interest from "./Interest";
+import { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getZodiac } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import LogoutButton from "@/components/LogoutButton";
 
-export default function Page() {
-  const userInfo = {
-    username: "johndoe",
-    gender: "Male",
-    zodiac: "Virgo",
-    horoscope: "Pig",
-    age: "28",
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getProfile();
+
+  return {
+    title: data.username,
   };
+}
+
+async function getProfile() {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("authToken")?.value;
+
+  if (!authToken) {
+    redirect("/login");
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}getProfile`,
+    {
+      method: "GET",
+      headers: {
+        "x-access-token": authToken,
+      },
+    },
+  );
+
+  const { data } = await response.json();
+
+  return data;
+}
+
+export default async function Page() {
+  const userInfo = await getProfile();
+
   return (
     <MaxWidthWrapper className="space-y-6 py-16">
       <div className="flex items-center justify-between">
         <Back href="/" />
-        <p className="text-center text-sm font-semibold">@johndoe</p>
-        <Ellipsis className="size-6" />
+        <p className="text-center text-sm font-semibold">
+          @{userInfo.username}
+        </p>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Ellipsis className="size-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogoutButton />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Image Photo */}
       <div className="aspect-[2.08:1] relative h-[190px] overflow-hidden rounded-2xl bg-[#162329]">
-        <PencilLine className="absolute right-4 top-3 size-5" />
-        {userInfo && !userInfo.gender && (
-          <p className="absolute bottom-3 left-4 font-bold">@johndoe</p>
+        {userInfo && !userInfo.name && (
+          <p className="absolute bottom-3 left-4 font-bold">
+            @{userInfo.username}
+          </p>
         )}
-        {userInfo.gender && (
+        {userInfo.name && (
           <>
-            <Image
-              src="/dummy.jpg"
-              alt=""
-              width={1000}
-              height={1000}
-              className="aspect-[2.08:1] object-cover"
-            />
             <div className="absolute bottom-3 left-4 flex flex-col space-y-3">
-              <div>
-                <p className="text-xs font-medium">{userInfo.gender}</p>
+              <div className="space-y-0.5">
+                <p className="font-bold">@{userInfo.username}</p>
               </div>
               <div className="flex gap-x-4 text-white">
                 <div className="flex gap-2 rounded-full bg-white/5 px-4 py-2.5 backdrop-blur-2xl">
-                  <Rss className="size-5" />
-                  <p className="text-sm font-semibold">{userInfo.zodiac}</p>
+                  <p className="text-sm font-semibold">{userInfo.horoscope}</p>
                 </div>
                 <div className="flex gap-2 rounded-full bg-white/5 px-4 py-2.5 backdrop-blur-2xl">
-                  <Rss className="size-5" />
-                  <p className="text-sm font-semibold">{userInfo.zodiac}</p>
+                  <p className="text-sm font-semibold">
+                    {getZodiac(new Date(userInfo.birthday))}
+                  </p>
                 </div>
               </div>
             </div>
@@ -57,10 +103,10 @@ export default function Page() {
       </div>
 
       {/* About */}
-      <About />
+      <About userInfo={userInfo} />
 
       {/* Interest */}
-      <Interest />
+      <Interest userInfo={userInfo} />
     </MaxWidthWrapper>
   );
 }

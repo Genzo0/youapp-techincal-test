@@ -4,27 +4,40 @@ import Back from "@/components/Back";
 import { Ellipsis, PencilLine } from "lucide-react";
 import BackgroundGradient from "@/components/BackgroundGradient";
 import GradientWrapper from "@/components/GradientWrapper";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+async function getProfile() {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("authToken")?.value;
+
+  if (!authToken) {
+    redirect("/login");
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}getProfile`,
+    {
+      method: "GET",
+      headers: {
+        "x-access-token": authToken,
+      },
+    },
+  );
+
+  const { data } = await response.json();
+
+  return data;
+}
+
+export default async function Page() {
+  const userInfo = await getProfile();
+
   return (
     <GradientWrapper className="py-16">
       <BackgroundGradient />
       <div className="space-y-[73px]">
-        <div className="flex items-center justify-between">
-          <Back href="/" />
-          <p className="absolute right-4 z-50 bg-gradient-to-r from-[#ABFFFD] via-[#4599DB] via-80% to-[#ABFFFD] bg-clip-text text-sm text-transparent">
-            Save
-          </p>
-        </div>
-        <div className="w-full space-y-8">
-          <div className="space-y-3 px-2.5">
-            <p className="bg-gradient-to-r from-[#94783E] via-[#D5BE88] via-10% to-[#94783E] to-100% bg-clip-text text-sm font-bold text-transparent">
-              Tell everyone about yourself
-            </p>
-            <p className="text-xl font-bold">What interest you?</p>
-          </div>
-          <InterestTagInput />
-        </div>
+        <InterestTagInput userInfo={userInfo} />
       </div>
     </GradientWrapper>
   );
