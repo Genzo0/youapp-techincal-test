@@ -1,6 +1,6 @@
 import Back from "@/components/Back";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { Ellipsis, PencilLine, Rss } from "lucide-react";
+import { Ellipsis, LogOut, PencilLine, Rss } from "lucide-react";
 import Image from "next/image";
 import About from "./About";
 import Link from "next/link";
@@ -9,6 +9,15 @@ import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getZodiac } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import LogoutButton from "@/components/LogoutButton";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getProfile();
@@ -51,7 +60,18 @@ export default async function Page() {
         <p className="text-center text-sm font-semibold">
           @{userInfo.username}
         </p>
-        <Ellipsis className="size-6" />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Ellipsis className="size-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogoutButton />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Image Photo */}

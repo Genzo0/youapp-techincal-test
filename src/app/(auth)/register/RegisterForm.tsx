@@ -113,7 +113,7 @@ export default function RegisterForm() {
                 <FormControl>
                   <Input
                     {...field}
-                    type="email"
+                    type="text"
                     className="h-12 w-full rounded-lg border-none bg-white/5 text-sm focus-visible:ring-0"
                     placeholder="Enter Email"
                   />
